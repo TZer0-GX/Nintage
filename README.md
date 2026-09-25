@@ -1,2 +1,4 @@
-# Nintage
+# Nin-tage
 Projet universitaire | Site concernant les consoles NES (1983) et GameBoy (1989) de Nintendo et de leur histoire.
+
+Le site est **toujours en cours de développement**, merci de patienter...
