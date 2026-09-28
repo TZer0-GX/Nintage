@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro NES Player - Static Web App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- JSNES Emulator Library via CDN -->
+    <script src="https://unpkg.com/jsnes/dist/jsnes.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'retro-bg': '#222222',
+                        'retro-card': '#2b2b2b',
+                        'retro-yellow': '#ffe600',
+                        'retro-orange': '#ff8800',
+                        'retro-green': '#a6ff00',
+                        'retro-red': '#ff3344'
+                    },
+                    fontFamily: {
+                        pixel: ['"Press Start 2P"', 'cursive', 'sans-serif'],
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom Styles to fine-tune the sketch look */
+        body {
+            background-color: #1a1a1a;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+        }
+        .retro-border {
+            border: 3px solid #000000;
+        }
+        canvas {
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-retro-bg text-white">
+
+    <!-- 1. Header / Barre Supérieure selon le croquis -->
+    <header class="w-full bg-black border-b-4 border-black flex flex-wrap justify-between items-center p-3 sm:px-6">
+        <!-- Gauche: Hello world :) sur fond blanc -->
+        <div class="bg-white text-black px-6 py-2.5 rounded shadow font-bold text-lg flex items-center gap-2 border-2 border-gray-400">
+            <i class="fa-solid font-mono text-xl">:)</i>
+            <span>Hello world :)</span>
+        </div>
+
+        <!-- Droite: Bouton vert fluo "Coming soon..." -->
+        <div class="bg-retro-green text-black font-extrabold px-6 py-2.5 rounded shadow border-2 border-black tracking-wide cursor-pointer hover:brightness-110 transition flex items-center gap-2">
+            <i class="fa-solid font-mono text-sm animate-pulse">●</i>
+            <span>Coming soon...</span>
+        </div>
+    </header>
+
+    <!-- Conteneur Principal basé sur la grille du croquis -->
+    <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 p-4 sm:p-6 max-w-[1600px] mx-auto w-full">
+        
+        <!-- ================= ZONE PRINCIPALE (GAUCHE - 8 cols) ================= -->
+        <section class="lg:col-span-8 flex flex-col gap-4">
+            
+            <!-- Titre & Sous-titre -->
+            <div>
+                <h1 id="game-title" class="text-retro-yellow text-3xl sm:text-4xl font-extrabold underline underline-offset-8 decoration-retro-yellow tracking-wide mb-1">
+                    "Super Boy Adventure"
+                </h1>
+                <p id="game-subtitle" class="text-retro-orange text-lg sm:text-xl font-semibold">
+                    "1990 - Nintendo / Hudson Soft"
+                </p>
+            </div>
+
+            <!-- Écran d'Émulation NES -->
+            <div class="bg-black retro-border rounded-lg p-2 flex flex-col items-center justify-center relative min-h-[340px] sm:min-h-[440px] overflow-hidden shadow-2xl">
+                <!-- Écran Canvas NES (256x240 natif, étiré proprement) -->
+                <canvas id="nes-canvas" width="256" height="240" class="w-full max-w-[640px] h-auto bg-black rounded border border-gray-800 shadow-inner"></canvas>
+                
+                <!-- Overlay de Contrôle & Chargement ROM -->
+                <div id="emulator-controls" class="mt-3 w-full max-w-[640px] flex flex-wrap items-center justify-between gap-2 px-2 text-xs text-gray-300">
+                    <div class="flex items-center gap-2">
+                        <button id="btn-pause" class="bg-gray-800 hover:bg-gray-700 text-white px-3 py-1.5 rounded flex items-center gap-1 border border-gray-600">
+                            <i class="fa-solid fa-pause"></i> Pause
+                        </button>
+                        <button id="btn-reset" class="bg-gray-800 hover:bg-gray-700 text-white px-3 py-1.5 rounded flex items-center gap-1 border border-gray-600">
+                            <i class="fa-solid fa-rotate-right"></i> Reset
+                        </button>
+                    </div>
+
+                    <!-- Sélecteur de ROM personnalisée -->
+                    <label class="bg-retro-orange hover:brightness-110 text-black font-bold px-3 py-1.5 rounded cursor-pointer transition flex items-center gap-1">
+                        <i class="fa-solid fa-upload"></i> Charger un fichier .NES
+                        <input type="file" id="rom-file-input" accept=".nes" class="hidden">
+                    </label>
+                </div>
+
+                <!-- Guide Touches / Clavier -->
+                <div class="mt-2 text-[11px] text-gray-400 text-center font-mono">
+                    Contrôles Clavier: <span class="text-retro-yellow">Flèches</span> = D-Pad | <span class="text-retro-yellow">Z</span> = A | <span class="text-retro-yellow">X</span> = B | <span class="text-retro-yellow">Enter</span> = Start | <span class="text-retro-yellow">Shift</span> = Select
+                </div>
+            </div>
+
+            <!-- Zone sous l'émulateur (Croquis: Favori à gauche, Étoiles à droite) -->
+            <div class="bg-black retro-border p-2 sm:p-3 rounded-lg flex flex-wrap justify-between items-center gap-4">
+                
+                <!-- Bouton Favoris (Cœur Rouge + Vert) -->
+                <button id="favorite-btn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold px-4 py-2 rounded-md flex items-center gap-3 border-2 border-black transition active:scale-95">
+                    <div class="relative flex items-center justify-center">
+                        <i id="heart-icon" class="fa-solid fa-heart text-retro-red text-2xl drop-shadow"></i>
+                        <span id="heart-plus" class="absolute -top-1 -right-2 text-retro-green font-extrabold text-sm leading-none">+</span>
+                    </div>
+                    <span id="favorite-text" class="text-black font-extrabold text-lg">Favoris</span>
+                </button>
+
+                <!-- Notation par Étoiles -->
+                <div class="flex items-center gap-1 bg-gray-800 px-4 py-2 rounded-md border-2 border-black">
+                    <span class="text-xs text-gray-400 mr-2 hidden sm:inline">Note:</span>
+                    <div id="star-rating" class="flex gap-1">
+                        <i class="fa-solid fa-star star text-2xl cursor-pointer text-gray-500 hover:text-retro-yellow transition" data-rating="1"></i>
+                        <i class="fa-solid fa-star star text-2xl cursor-pointer text-gray-500 hover:text-retro-yellow transition" data-rating="2"></i>
+                        <i class="fa-solid fa-star star text-2xl cursor-pointer text-gray-500 hover:text-retro-yellow transition" data-rating="3"></i>
+                        <i class="fa-solid fa-star star text-2xl cursor-pointer text-gray-500 hover:text-retro-yellow transition" data-rating="4"></i>
+                        <i class="fa-solid fa-star star text-2xl cursor-pointer text-gray-500 hover:text-retro-yellow transition" data-rating="5"></i>
+                    </div>
+                    <span id="rating-value" class="text-retro-yellow font-bold text-sm ml-2">0/5</span>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ================= COLONNE LATÉRALE (DROITE - 4 cols) ================= -->
+        <aside class="lg:col-span-4 flex flex-col gap-6">
+            
+            <!-- Section Notice / Mode d'emploi PDF -->
+            <div class="bg-retro-card p-4 rounded-lg retro-border flex flex-col h-[320px]">
+                <div class="flex justify-between items-center mb-2 pb-2 border-b border-gray-700">
+                    <h2 class="text-retro-yellow font-bold text-md flex items-center gap-2">
+                        <i class="fa-solid fa-file-pdf text-retro-red"></i> Manuel Numérisé (PDF)
+                    </h2>
+                    <span class="text-xs text-gray-400">Notice officielle</span>
+                </div>
+                
+                <!-- Prévisualisation / Lecteur PDF -->
+                <div class="flex-1 bg-gray-900 rounded border border-gray-700 overflow-hidden relative flex flex-col items-center justify-center p-2">
+                    <!-- Si un PDF est disponible -->
+                    <iframe id="pdf-viewer" class="w-full h-full rounded hidden" src="" title="Mode d'emploi PDF"></iframe>
+                    
+                    <!-- Placeholder Interactif quand aucun PDF réel n'est chargé -->
+                    <div id="pdf-placeholder" class="text-center p-4 flex flex-col items-center gap-2">
+                        <i class="fa-solid fa-book-open text-4xl text-gray-600 mb-1"></i>
+                        <p class="text-sm text-gray-300 font-semibold">Mode d'emploi original NES</p>
+                        <p class="text-xs text-gray-500">Affichez ou importez la notice numérisée en PDF.</p>
+                        
+                        <label class="mt-2 bg-gray-800 hover:bg-gray-700 text-retro-yellow border border-retro-yellow/40 text-xs font-bold px-3 py-1.5 rounded cursor-pointer transition">
+                            <i class="fa-solid fa-paperclip"></i> Charger un PDF
+                            <input type="file" id="pdf-file-input" accept="application/pdf" class="hidden">
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Large Zone de Texte : Histoire / Lore du Jeu -->
+            <div class="bg-retro-card p-4 rounded-lg retro-border flex-1 flex flex-col">
+                <h2 class="text-retro-orange font-bold text-lg mb-2 pb-2 border-b border-gray-700 flex items-center gap-2">
+                    <i class="fa-solid fa-scroll"></i> Histoire & Synopsis
+                </h2>
+                
+                <div class="text-gray-300 text-sm leading-relaxed space-y-3 overflow-y-auto max-h-[350px] pr-2 custom-scrollbar">
+                    <p class="font-semibold text-retro-yellow italic">
+                        "Dans un royaume lointain dominé par les 8 bits de nostalgie..."
+                    </p>
+                    <p>
+                        Embarquez dans une aventure légendaire ! Vous incarnez le héros du royaume dont la mission ultime est d'explorer de mystérieux donjons pixélisés, de vaincre le maléfique sorcier du Nether-Byte et de restaurer l'ordre dans la cartouche perdue.
+                    </p>
+                    <p>
+                        Ce jeu classique des années 90 réunit tout le charme du retrogaming : musiques chip-tune inoubliables, niveaux exigeants, et secrets cachés derrière chaque bloc.
+                    </p>
+                    <div class="bg-black/50 p-3 rounded border border-gray-700 text-xs font-mono text-gray-400 mt-4">
+                        <p class="text-retro-green font-bold mb-1"> Astuce du Joueur :</p>
+                        Maintenez le bouton <span class="text-white">B (Touche X)</span> enfoncé pour courir plus vite et franchir les ravins les plus larges !
+                    </div>
+                </div>
+            </div>
+
+        </aside>
+
+    </main>
+
+    <script>
+        /* ===================================================================
+           LOGIQUE INTERACTIVE & EMULATEUR JSNES
+           =================================================================== */
+
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- 1. Gestion des Favoris (Bouton interactif + LocalStorage) ---
+            const favoriteBtn = document.getElementById('favorite-btn');
+            const favoriteText = document.getElementById('favorite-text');
+            const heartIcon = document.getElementById('heart-icon');
+            
+            let isFavorite = localStorage.getItem('nes_game_favorite') === 'true';
+
+            function updateFavoriteUI() {
+                if (isFavorite) {
+                    favoriteBtn.classList.remove('bg-gray-600');
+                    favoriteBtn.classList.add('bg-retro-green');
+                    favoriteText.textContent = 'Dans vos Favoris !';
+                    heartIcon.classList.add('scale-125');
+                } else {
+                    favoriteBtn.classList.remove('bg-retro-green');
+                    favoriteBtn.classList.add('bg-gray-600');
+                    favoriteText.textContent = 'Favoris';
+                    heartIcon.classList.remove('scale-125');
+                }
+            }
+
+            favoriteBtn.addEventListener('click', () => {
+                isFavorite = !isFavorite;
+                localStorage.setItem('nes_game_favorite', isFavorite);
+                updateFavoriteUI();
+            });
+
+            updateFavoriteUI();
+
+            // --- 2. Gestion de la Notation par Étoiles ---
+            const stars = document.querySelectorAll('.star');
+            const ratingValue = document.getElementById('rating-value');
+            let currentRating = parseInt(localStorage.getItem('nes_game_rating')) || 0;
+
+            function setRating(rating) {
+                stars.forEach(star => {
+                    const r = parseInt(star.getAttribute('data-rating'));
+                    if (r <= rating) {
+                        star.classList.remove('text-gray-500');
+                        star.classList.add('text-retro-yellow');
+                    } else {
+                        star.classList.remove('text-retro-yellow');
+                        star.classList.add('text-gray-500');
+                    }
+                });
+                ratingValue.textContent = `${rating}/5`;
+            }
+
+            stars.forEach(star => {
+                star.addEventListener('mouseover', () => {
+                    const hoverVal = parseInt(star.getAttribute('data-rating'));
+                    setRating(hoverVal);
+                });
+
+                star.addEventListener('mouseleave', () => {
+                    setRating(currentRating);
+                });
+
+                star.addEventListener('click', () => {
+                    currentRating = parseInt(star.getAttribute('data-rating'));
+                    localStorage.setItem('nes_game_rating', currentRating);
+                    setRating(currentRating);
+                });
+            });
+
+            setRating(currentRating);
+
+            // --- 3. Gestion du Lecteur PDF ---
+            const pdfFileInput = document.getElementById('pdf-file-input');
+            const pdfViewer = document.getElementById('pdf-viewer');
+            const pdfPlaceholder = document.getElementById('pdf-placeholder');
+
+            pdfFileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file && file.type === 'application/pdf') {
+                    const fileURL = URL.createObjectURL(file);
+                    pdfViewer.src = fileURL;
+                    pdfViewer.classList.remove('hidden');
+                    pdfPlaceholder.classList.add('hidden');
+                }
+            });
+
+            // --- 4. Intégration de l'Émulateur NES (JSNES) ---
+            const canvas = document.getElementById('nes-canvas');
+            const ctx = canvas.getContext('2d');
+            const imageData = ctx.createImageData(256, 240);
+            const buf = new ArrayBuffer(imageData.data.length);
+            const buf8 = new Uint8ClampedArray(buf);
+            const buf32 = new Uint32Array(buf);
+
+            let nes = null;
+            let isRunning = false;
+            let animationFrameId = null;
+
+            // Initialisation de JSNES si disponible
+            if (typeof jsnes !== 'undefined') {
+                nes = new jsnes.NES({
+                    onFrame: function(frameBuffer) {
+                        var i = 0;
+                        for (var y = 0; y < 240; ++y) {
+                            for (var x = 0; x < 256; ++x) {
+                                i = y * 256 + x;
+                                buf32[i] = 0xff000000 | frameBuffer[i];
+                            }
+                        }
+                        imageData.data.set(buf8);
+                        ctx.putImageData(imageData, 0, 0);
+                    },
+                    onAudioSample: function(left, right) {
+                        // Traitement audio désactivé par simplicité pour éviter la saturation du navigateur
+                    }
+                });
+            }
+
+            // Boucle d'émulation
+            function onAnimationFrame() {
+                if (isRunning && nes) {
+                    nes.frame();
+                    animationFrameId = requestAnimationFrame(onAnimationFrame);
+                }
+            }
+
+            // Démarrer une ROM NES à partir d'un ArrayBuffer
+            function loadROMBuffer(buffer) {
+                if (!nes) return;
+                
+                // Stopper l'ancienne instance
+                if (animationFrameId) cancelAnimationFrame(animationFrameId);
+                
+                // Convertir le buffer en chaîne binaire pour JSNES
+                let binary = "";
+                const bytes = new Uint8Array(buffer);
+                const len = bytes.byteLength;
+                for (let i = 0; i < len; i++) {
+                    binary += String.fromCharCode(bytes[i]);
+                }
+
+                try {
+                    nes.loadROM(binary);
+                    isRunning = true;
+                    onAnimationFrame();
+                } catch (err) {
+                    console.error("Erreur de chargement ROM :", err);
+                }
+            }
+
+            // Générateur de Démo Visuelle (Mire Rétro Animée si pas de ROM chargée)
+            function drawDemoPattern() {
+                let frame = 0;
+                function animateDemo() {
+                    if (isRunning) return; // Arreter la démo si une vraie ROM tourne
+                    ctx.fillStyle = '#000000';
+                    ctx.fillRect(0, 0, 256, 240);
+                    
+                    // Texte Rétro
+                    ctx.fillStyle = '#ffe600';
+                    ctx.font = '12px font-mono, monospace';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('ÉMULATEUR NES PRÊT', 128, 100);
+
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = '10px font-mono, monospace';
+                    ctx.fillText('Glissez un fichier .NES ou', 128, 130);
+                    ctx.fillText('cliquez sur "Charger un fichier .NES"', 128, 145);
+
+                    // Petit effet rétro oscillant
+                    frame++;
+                    ctx.fillStyle = '#a6ff00';
+                    ctx.fillRect(64 + Math.sin(frame * 0.05) * 40, 170, 20, 20);
+
+                    requestAnimationFrame(animateDemo);
+                }
+                animateDemo();
+            }
+
+            drawDemoPattern();
+
+            // Écouteur pour le chargement de fichier .NES
+            const romFileInput = document.getElementById('rom-file-input');
+            romFileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        loadROMBuffer(event.target.result);
+                        
+                        // Mettre à jour le titre avec le nom du fichier chargé
+                        document.getElementById('game-title').textContent = `"${file.name.replace('.nes', '')}"`;
+                        document.getElementById('game-subtitle').textContent = `Fichier ROM personnalisé - Chargé localement`;
+                    };
+                    reader.readAsArrayBuffer(file);
+                }
+            });
+
+            // Contrôles Pause / Reset
+            document.getElementById('btn-pause').addEventListener('click', () => {
+                isRunning = !isRunning;
+                if (isRunning) onAnimationFrame();
+            });
+
+            document.getElementById('btn-reset').addEventListener('click', () => {
+                if (nes && isRunning) {
+                    nes.reloadROM();
+                }
+            });
+
+            // Mappage des touches Clavier vers la manette NES
+            const keyboardMap = {
+                38: jsnes.Controller.BUTTON_UP,      // Flèche Haut
+                40: jsnes.Controller.BUTTON_DOWN,    // Flèche Bas
+                37: jsnes.Controller.BUTTON_LEFT,    // Flèche Gauche
+                39: jsnes.Controller.BUTTON_RIGHT,   // Flèche Droite
+                90: jsnes.Controller.BUTTON_A,       // Touche Z
+                88: jsnes.Controller.BUTTON_B,       // Touche X
+                16: jsnes.Controller.BUTTON_SELECT,  // Shift
+                13: jsnes.Controller.BUTTON_START    // Entrée
+            };
+
+            window.addEventListener('keydown', (e) => {
+                if (keyboardMap[e.keyCode] !== undefined && nes) {
+                    nes.buttonDown(1, keyboardMap[e.keyCode]);
+                }
+            });
+
+            window.addEventListener('keyup', (e) => {
+                if (keyboardMap[e.keyCode] !== undefined && nes) {
+                    nes.buttonUp(1, keyboardMap[e.keyCode]);
+                }
+            });
+
+        });
+    </script>
+</body>
+</html>
