@@ -4,13 +4,13 @@ Projet universitaire | Site concernant les consoles NES (1983) et GameBoy (1989)
 ## Commandes en jeu
  > Manette < | > Clavier <
 
-|     A      |     X      |
-|     B      |     Z      |
-|    Start   |   Entrée   |
-|   Select   |    Space   |
-|     Up     | Touche HAUT|
-|    Down    | Touche BAS |
-|    Left    | Touche LEFT|
-|    Right   |Touche RIGHT|
+|     A      =     X      |
+|     B      =     Z      |
+|    Start   =   Entrée   |
+|   Select   =    Space   |
+|     Up     = Touche HAUT|
+|    Down    = Touche BAS |
+|    Left    = Touche LEFT|
+|    Right   =Touche RIGHT|
 
 Le site est **toujours en cours de développement**, merci de patienter...
