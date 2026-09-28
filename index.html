@@ -3,8 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <title>Nin-tage</title>
-  <!-- Inclusion de Nostalgia.nes pour l'émulation NES -->
-  <link rel="stylesheet" href="https://unpkg.com/nostalgia.js/dist/nostalgia.css">
   <style>
     * {
       box-sizing: border-box;
@@ -28,7 +26,7 @@
       box-shadow: 0 0 15px rgba(0,0,0,0.8);
     }
 
-    /* --- TOP HEADER (Jaune Newgrounds 2005) --- */
+    /* --- TOP HEADER --- */
     #top-bar {
       display: flex;
       background: linear-gradient(to bottom, #ffff00 0%, #cccc00 100%);
@@ -43,7 +41,7 @@
       justify-content: center;
       border-right: 2px solid #000;
       background: linear-gradient(to bottom, #ffff00 0%, #d4d400 100%);
-      cursor: pointer; /* Indique que le logo est cliquable */
+      cursor: pointer;
       user-select: none;
     }
 
@@ -56,11 +54,6 @@
       font-weight: bold;
       font-size: 22px;
       text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
-      transition: transform 0.1s ease;
-    }
-
-    .logo-zone:active .logo-badge {
-      transform: scale(0.96);
     }
 
     .header-nav {
@@ -72,7 +65,6 @@
       flex: 1;
       border-right: 2px solid #000;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
       font-weight: bold;
@@ -81,7 +73,6 @@
       background: linear-gradient(to bottom, #d8e000 0%, #a0a800 100%);
     }
 
-    /* Bouton de connexion révisé */
     .user-zone {
       width: 230px;
       background: linear-gradient(to bottom, #cccccc 0%, #888888 100%);
@@ -102,15 +93,6 @@
       font-size: 13px;
       cursor: pointer;
       box-shadow: inset 0 1px 0 #fff, 0 2px 3px rgba(0,0,0,0.3);
-    }
-
-    .login-btn:hover {
-      background: linear-gradient(to bottom, #ffffff 0%, #e6e6e6 100%);
-    }
-
-    .login-btn:active {
-      background: #aaaaaa;
-      box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
     }
 
     /* --- ONGLETS --- */
@@ -151,7 +133,6 @@
       border-right: 2px solid #000;
     }
 
-    /* Titre et Tags */
     .game-header {
       display: flex;
       justify-content: space-between;
@@ -183,23 +164,61 @@
       font-weight: bold;
       font-size: 11px;
       color: #fff;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.4);
     }
 
     .tag-green { background: linear-gradient(to bottom, #00cc44 0%, #006622 100%); }
     .tag-darkgreen { background: linear-gradient(to bottom, #008833 0%, #004411 100%); }
     .tag-red { background: linear-gradient(to bottom, #cc0000 0%, #660000 100%); }
 
-    /* Conteneur Émulateur */
+    /* --- ÉMULATEUR ET CANVAS --- */
     #emulator-viewport {
       width: 100%;
       height: 380px;
       background-color: #000;
       border: 2px solid #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       position: relative;
     }
 
-    /* --- BARRE INTERACTIVE DE FAVORIS & RECOMMANDATIONS --- */
+    canvas#nes-canvas {
+      width: 506px;
+      height: 380px;
+      image-rendering: pixelated;
+      background: #000;
+    }
+
+    /* Commandes Émulateur */
+    .emu-controls {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: flex;
+      gap: 5px;
+      z-index: 10;
+    }
+
+    .emu-btn {
+      background: #333;
+      color: #fff;
+      border: 1px solid #777;
+      padding: 4px 8px;
+      font-size: 11px;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+
+    .emu-btn:hover { background: #555; }
+
+    #status-msg {
+      color: #ffcc00;
+      font-size: 14px;
+      position: absolute;
+    }
+
+    /* --- FOOTER & SIDEBAR --- */
     .game-footer {
       margin-top: 10px;
       display: flex;
@@ -211,7 +230,6 @@
       border-radius: 4px;
     }
 
-    /* Favoris interactif */
     .fav-btn {
       display: flex;
       align-items: center;
@@ -222,60 +240,15 @@
       cursor: pointer;
       user-select: none;
       padding: 4px 8px;
-      border-radius: 4px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid transparent;
-      transition: background 0.2s, border 0.2s;
     }
 
-    .fav-btn:hover {
-      background: rgba(255, 255, 255, 0.15);
-      border: 1px solid #777;
-    }
+    .fav-btn.active .fav-icon { color: #ff3333; }
 
-    .fav-icon {
-      color: #888;
-      font-size: 16px;
-      transition: color 0.2s, transform 0.2s;
-    }
+    .stars { display: flex; gap: 2px; cursor: pointer; }
+    .star { font-size: 20px; color: #444; }
+    .star.active, .star.hover { color: #ffcc00; }
 
-    .fav-btn.active .fav-icon {
-      color: #ff3333;
-      transform: scale(1.2);
-    }
-
-    /* Notation par étoiles interactive */
-    .rating-container {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .stars {
-      display: flex;
-      gap: 2px;
-      cursor: pointer;
-      direction: ltr;
-    }
-
-    .star {
-      font-size: 20px;
-      color: #444;
-      transition: color 0.15s;
-      user-select: none;
-    }
-
-    .star.active, .star.hover {
-      color: #ffcc00;
-      text-shadow: 0 0 4px rgba(255, 204, 0, 0.6);
-    }
-
-    /* --- BARRE LATÉRALE RECOMMANDATIONS --- */
-    #sidebar {
-      width: 210px;
-      background-color: #2b2b2b;
-    }
-
+    #sidebar { width: 210px; background-color: #2b2b2b; }
     .sidebar-header {
       background: linear-gradient(to bottom, #444 0%, #111 100%);
       color: #fff;
@@ -285,57 +258,35 @@
       font-weight: bold;
       border-bottom: 1px solid #000;
     }
-
     .reco-item {
       height: 45px;
       border-bottom: 2px solid #000;
       background: linear-gradient(to bottom, #666666 0%, #333333 100%);
-    }
-
-    .sidebar-footer {
-      height: 30px;
-      background: linear-gradient(to bottom, #444 0%, #111 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .arrow-down {
-      width: 0;
-      height: 0;
-      border-left: 8px solid transparent;
-      border-right: 8px solid transparent;
-      border-top: 10px solid #ffcc00;
     }
   </style>
 </head>
 <body>
 
   <div id="app-container">
-    <!-- TOP HEADER -->
     <div id="top-bar">
-      <!-- Clic sur le logo recharge la page -->
-      <div class="logo-zone" onclick="window.location.reload();" title="Recharger la page">
+      <div class="logo-zone" onclick="window.location.reload();">
         <div class="logo-badge">Nin-tage</div>
       </div>
       <div class="header-nav">
         <div class="nav-btn">NES</div>
         <div class="nav-btn">Game Boy</div>
       </div>
-      <!-- Nouveau bouton de connexion -->
       <div class="user-zone">
         <button class="login-btn">Connectez-vous</button>
       </div>
     </div>
 
-    <!-- TAB BAR -->
     <div id="tab-bar">
       <div class="tab">Histoire / Manuel</div>
       <div class="tab active">Jouer à ce jeu</div>
       <div class="tab">Commentaires / Forum</div>
     </div>
 
-    <!-- MAIN CONTENT -->
     <div id="main-content">
       <div id="game-area">
         <div class="game-header">
@@ -350,28 +301,30 @@
           </div>
         </div>
 
-        <!-- ZONE ÉMULATEUR -->
-        <div id="emulator-viewport"></div>
+        <!-- ZONE ÉMULATEUR NES -->
+        <div id="emulator-viewport">
+          <div class="emu-controls">
+            <button class="emu-btn" onclick="toggleFullscreen()">Plein écran</button>
+          </div>
+          <span id="status-msg">Chargement du jeu...</span>
+          <canvas id="nes-canvas" width="256" height="240"></canvas>
+        </div>
 
-        <!-- BARRE FAVORIS / RECOMMANDATION INTERACTIVE -->
         <div class="game-footer">
           <div class="fav-btn" id="favButton">
             <span class="fav-icon" id="favIcon">♥</span>
             <span id="favText">Ajouter aux favoris</span>
           </div>
-          <div class="rating-container">
-            <div class="stars" id="starRating">
-              <span class="star" data-value="1">★</span>
-              <span class="star" data-value="2">★</span>
-              <span class="star" data-value="3">★</span>
-              <span class="star" data-value="4">★</span>
-              <span class="star" data-value="5">★</span>
-            </div>
+          <div class="stars" id="starRating">
+            <span class="star" data-value="1">★</span>
+            <span class="star" data-value="2">★</span>
+            <span class="star" data-value="3">★</span>
+            <span class="star" data-value="4">★</span>
+            <span class="star" data-value="5">★</span>
           </div>
         </div>
       </div>
 
-      <!-- SIDEBAR -->
       <div id="sidebar">
         <div class="sidebar-header">Recommandations</div>
         <div class="reco-item"></div>
@@ -379,77 +332,114 @@
         <div class="reco-item"></div>
         <div class="reco-item"></div>
         <div class="reco-item"></div>
-        <div class="sidebar-footer">
-          <div class="arrow-down"></div>
-        </div>
       </div>
     </div>
   </div>
 
-  <!-- Script Émulateur Nostalgia -->
-  <script src="https://unpkg.com/nostalgia.js/dist/nostalgia.js"></script>
+  <!-- Librairie Émulateur jsNES -->
+  <script src="https://unpkg.com/jsnes/dist/jsnes.min.js"></script>
   <script>
-    // 1. Initialisation de l'émulateur
-    const ROM_URL = './roms/test.nes';
+    // --- 1. MOTEUR ÉMULATEUR NES ---
+    const canvas = document.getElementById('nes-canvas');
+    const ctx = canvas.getContext('2d');
+    const statusMsg = document.getElementById('status-msg');
+    const imageData = ctx.createImageData(256, 240);
+    const buf = new ArrayBuffer(imageData.data.length);
+    const buf8 = new Uint8ClampedArray(buf);
+    const buf32 = new Uint32Array(buf);
 
-    const emulator = new Nostalgia({
-      element: '#emulator-viewport',
-      core: 'nes',
-      controls: true,
-      stateButtons: true
+    const nes = new jsnes.NES({
+      onFrame: function(frameBuffer) {
+        for (let i = 0; i < frameBuffer.length; i++) {
+          buf32[i] = 0xFF000000 | frameBuffer[i];
+        }
+        imageData.data.set(buf8);
+        ctx.putImageData(imageData, 0, 0);
+      },
+      onAudioSample: function() {} // Audio désactivé pour la stabilité basique
     });
 
-    emulator.loadURL(ROM_URL);
+    // Chargement de la ROM depuis le dossier
+    fetch('./roms/test.nes')
+      .then(response => {
+        if (!response.ok) throw new Error("ROM introuvable !");
+        return response.arrayBuffer();
+      })
+      .then(buffer => {
+        const bytes = new Uint8Array(buffer);
+        let binary = '';
+        for (let i = 0; i < bytes.byteLength; i++) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+        nes.loadROM(binary);
+        statusMsg.style.display = 'none';
+        
+        // Boucle de jeu ~60 FPS
+        function step() {
+          nes.frame();
+          requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+      })
+      .catch(err => {
+        statusMsg.textContent = "Erreur : Vérifiez que 'mario.nes' est bien dans le dossier 'roms'";
+        statusMsg.style.color = "#ff3333";
+      });
 
-    // 2. Gestion dynamique du bouton Favoris
+    // CONTROLES DU JOUEUR (Flèches = Déplacement, X = A, Z = B, Entrée = Start, Maj = Select)
+    const keyboardMap = {
+      38: jsnes.Controller.BUTTON_UP,
+      40: jsnes.Controller.BUTTON_DOWN,
+      37: jsnes.Controller.BUTTON_LEFT,
+      39: jsnes.Controller.BUTTON_RIGHT,
+      88: jsnes.Controller.BUTTON_A,      // Touche X
+      90: jsnes.Controller.BUTTON_B,      // Touche Z
+      13: jsnes.Controller.BUTTON_START,  // Entrée
+      16: jsnes.Controller.BUTTON_SELECT  // Majuscule
+    };
+
+    window.addEventListener('keydown', (e) => {
+      if (keyboardMap[e.keyCode] !== undefined) {
+        nes.buttonDown(1, keyboardMap[e.keyCode]);
+        e.preventDefault();
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      if (keyboardMap[e.keyCode] !== undefined) {
+        nes.buttonUp(1, keyboardMap[e.keyCode]);
+        e.preventDefault();
+      }
+    });
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        canvas.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    // --- 2. FAVORIS & ÉTOILES ---
     const favButton = document.getElementById('favButton');
     const favText = document.getElementById('favText');
     let isFavorite = false;
-
     favButton.addEventListener('click', () => {
       isFavorite = !isFavorite;
       favButton.classList.toggle('active', isFavorite);
       favText.textContent = isFavorite ? 'Favori' : 'Ajouter aux favoris';
     });
 
-    // 3. Gestion dynamique des étoiles de notation
     const stars = document.querySelectorAll('.star');
-    let currentRating = 4; // Note par défaut (4/5)
-
+    let currentRating = 4;
     function updateStars(rating) {
       stars.forEach(star => {
         const val = parseInt(star.getAttribute('data-value'));
-        if (val <= rating) {
-          star.classList.add('active');
-        } else {
-          star.classList.remove('active');
-        }
+        star.classList.toggle('active', val <= rating);
       });
     }
-
-    // Appliquer la note par défaut
     updateStars(currentRating);
-
     stars.forEach(star => {
-      // Effet au survol
-      star.addEventListener('mouseover', () => {
-        const hoverValue = parseInt(star.getAttribute('data-value'));
-        stars.forEach(s => {
-          const val = parseInt(s.getAttribute('data-value'));
-          if (val <= hoverValue) {
-            s.classList.add('hover');
-          } else {
-            s.classList.remove('hover');
-          }
-        });
-      });
-
-      // Retrait du survol
-      star.addEventListener('mouseout', () => {
-        stars.forEach(s => s.classList.remove('hover'));
-      });
-
-      // Enregistrement au clic
       star.addEventListener('click', () => {
         currentRating = parseInt(star.getAttribute('data-value'));
         updateStars(currentRating);
