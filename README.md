@@ -3,7 +3,7 @@
 
 ## Merci de suivre le lien ci-dessus et de **ne pas utiliser le site hébergé sur GitHub**, seul le **code** est publié sur GitHub, l'hébergement sera désormais sur infinityfree.com .
 
-####Nouveautés et changement :
+#### Nouveautés et changement :
 - Fini les versions "indev", voici la première version fonctionnelle du site
 - Passage d'un site **statique** à un site **dynamique** avec :
   - Intégration d'une base de donnée + d'un CRUD (Create, Read, Update, Delete)
@@ -33,7 +33,7 @@ Dû aux limitations imposées par GitHub, **le site est desormais hébergé sur 
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 ## Nin-tage
-####Projet universitaire | Site incluant les consoles de salon, de la NES (1983) à la Nintendo 64 (1996). En plus d'accueillir la Game Boy et ses futures versions.
+#### Projet universitaire | Site incluant les consoles de salon, de la NES (1983) à la Nintendo 64 (1996). En plus d'accueillir la Game Boy et ses futures versions.
 
 #### Ce site est une démonstration technique à but non lucratif. Pour des raisons de propriété intellectuelle, le site sera maintenu en ligne jusqu'à l'évaluation finale. Toujours pour des raisons légales, le site ne proposera qu'une infime partie du catalogue de chaque consoles. Les ROMs proposées ne sont pas téléchargeables ou accessibles aux utilisateurs.
 de plus merci de **ne pas** partager ce site. 
