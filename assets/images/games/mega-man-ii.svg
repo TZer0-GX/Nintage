@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480">
+<rect width="640" height="480" fill="#151515"/>
+<path d="M0 360 L640 170 L640 480 L0 480Z" fill="#ffdf00" opacity=".18"/>
+<rect x="28" y="28" width="584" height="424" fill="none" stroke="#ffdf00" stroke-width="10"/>
+<text x="55" y="235" fill="#ffdf00" font-family="Arial Black,Arial" font-size="64" font-weight="900">MEGA MAN II</text>
+<text x="58" y="290" fill="#d90000" stroke="#ffdf00" stroke-width="1" font-family="monospace" font-size="22">NES // 1990</text>
+<text x="58" y="410" fill="#ffdf00" font-family="monospace" font-size="16">NIN-TAGE // PLACEHOLDER ART</text>
+</svg>

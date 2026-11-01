@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480">
+<rect width="640" height="480" fill="#233"/>
+<path d="M0 360 L640 170 L640 480 L0 480Z" fill="#ffb3d9" opacity=".18"/>
+<rect x="28" y="28" width="584" height="424" fill="none" stroke="#ffb3d9" stroke-width="10"/>
+<text x="55" y="235" fill="#ffb3d9" font-family="Arial Black,Arial" font-size="64" font-weight="900">KIRBY</text>
+<text x="58" y="290" fill="#222" stroke="#ffb3d9" stroke-width="1" font-family="monospace" font-size="22">GAME BOY // 1992</text>
+<text x="58" y="410" fill="#ffb3d9" font-family="monospace" font-size="16">NIN-TAGE // PLACEHOLDER ART</text>
+</svg>

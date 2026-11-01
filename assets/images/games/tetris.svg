@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480">
+<rect width="640" height="480" fill="#111c33"/>
+<path d="M0 360 L640 170 L640 480 L0 480Z" fill="#43d7ff" opacity=".18"/>
+<rect x="28" y="28" width="584" height="424" fill="none" stroke="#43d7ff" stroke-width="10"/>
+<text x="55" y="235" fill="#43d7ff" font-family="Arial Black,Arial" font-size="64" font-weight="900">TETRIS</text>
+<text x="58" y="290" fill="#0b0b0b" stroke="#43d7ff" stroke-width="1" font-family="monospace" font-size="22">GAME BOY // 1989</text>
+<text x="58" y="410" fill="#43d7ff" font-family="monospace" font-size="16">NIN-TAGE // PLACEHOLDER ART</text>
+</svg>
