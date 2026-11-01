@@ -3,7 +3,7 @@
 
 ## Merci de suivre le lien ci-dessus et de **ne pas utiliser le site hébergé sur GitHub**, seul le **code** est publié sur GitHub, l'hébergement sera désormais sur infinityfree.com .
 
-#### Nouveautés et changement :
+#### Nouveautés et changements :
 - Fini les versions "indev", voici la première version fonctionnelle du site
 - Passage d'un site **statique** à un site **dynamique** avec :
   - Intégration d'une base de donnée + d'un CRUD (Create, Read, Update, Delete)
