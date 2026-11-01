@@ -1,6 +1,8 @@
 # **IMPORTANT** : Nouvelle version du site disponible !
 ### Nin-tage | version 1.0 : https://tzer0-gx.infinityfree.io/index.php
 
+## Merci de suivre le lien ci-dessus et de **ne pas utiliser le site hébergé sur GitHub**, seul le **code** est publié sur GitHub, l'hébergement sera désormais sur infinityfree.com .
+
 ####Nouveautés et changement :
 - Fini les versions "indev", voici la première version fonctionnelle du site
 - Passage d'un site **statique** à un site **dynamique** avec :
